@@ -125,6 +125,28 @@ namespace ompl
                 triangle inequality does not holds for the optimization objective, this will not perform well without
                 being run with conjunction with perturbPath.
             */
+
+
+            std::vector<base::State *> ContactPoints_;
+
+
+
+            bool ropeRRTtether(PathGeometric &path, std::vector<base::State *> 
+                                                            &contactPoints, double delta,    
+                                                            double equivalenceTolerance);
+
+        /** \brief hortcut a trajectory using the ropeRRTShortcut method, which simulates a taut tether around obstacles.
+    This method calculates contact points between iterations to ensure the path adheres to the constraints imposed by
+    the obstacles while attempting to minimize the trajectory length.
+
+
+            AUTHOR: Hakim Amer 
+             aha@eiva.com
+        */
+
+
+
+
             bool ropeShortcutPath(PathGeometric &path, double delta = 1.0, double equivalenceTolerance = 0.1);
 
             /** \brief Given a path, attempt to shorten it while maintaining its validity. This is an iterative process

@@ -47,11 +47,11 @@ if (OMPL_BUILD_DEMOS)
     add_ompl_demo(demo_ConstrainedPlanningImplicitParallel constraint/ConstrainedPlanningImplicitParallel.cpp)
     add_ompl_demo(demo_ConstrainedPlanningKinematicChain constraint/ConstrainedPlanningKinematicChain.cpp)
     
-    add_ompl_demo(demo_MultiLevelPlanningRigidBody2D multilevel/MultiLevelPlanningRigidBody2D.cpp)
-    add_ompl_demo(demo_MultiLevelPlanningRigidBody3D multilevel/MultiLevelPlanningRigidBody3D.cpp)
-    add_ompl_demo(demo_MultiLevelPlanningKinematicChain multilevel/MultiLevelPlanningKinematicChain.cpp)
-    add_ompl_demo(demo_MultiLevelPlanningHyperCube multilevel/MultiLevelPlanningHyperCube.cpp)
-    add_ompl_demo(demo_MultiLevelPlanningHyperCubeBenchmark multilevel/MultiLevelPlanningHyperCubeBenchmark.cpp)
+    #add_ompl_demo(demo_MultiLevelPlanningRigidBody2D multilevel/MultiLevelPlanningRigidBody2D.cpp)
+    #add_ompl_demo(demo_MultiLevelPlanningRigidBody3D multilevel/MultiLevelPlanningRigidBody3D.cpp)
+    #add_ompl_demo(demo_MultiLevelPlanningKinematicChain multilevel/MultiLevelPlanningKinematicChain.cpp)
+    #add_ompl_demo(demo_MultiLevelPlanningHyperCube multilevel/MultiLevelPlanningHyperCube.cpp)
+    #add_ompl_demo(demo_MultiLevelPlanningHyperCubeBenchmark multilevel/MultiLevelPlanningHyperCubeBenchmark.cpp)
 
     add_ompl_demo(demo_SpaceTimePlanning SpaceTimePlanning.cpp)
 
@@ -73,19 +73,19 @@ if (OMPL_BUILD_DEMOS)
             add_library(yaml-cpp::yaml-cpp ALIAS yaml-cpp)
         endif()
 
-        add_ompl_demo(demo_PlanarManipulator
-            PlanarManipulator/PlanarManipulatorDemo.cpp
-            PlanarManipulator/PlanarManipulator.cpp
-            PlanarManipulator/PolyWorld.cpp
-        )
-        target_link_libraries(demo_PlanarManipulator PRIVATE yaml-cpp::yaml-cpp)
+        #add_ompl_demo(demo_PlanarManipulator
+         #   PlanarManipulator/PlanarManipulatorDemo.cpp
+         #   PlanarManipulator/PlanarManipulator.cpp
+         #   PlanarManipulator/PolyWorld.cpp
+        #)
+        #target_link_libraries(demo_PlanarManipulator PRIVATE yaml-cpp::yaml-cpp)
 
-        add_ompl_demo(demo_MultiLevelPlanarManipulator
-            multilevel/MultiLevelPlanarManipulatorDemo.cpp
-            PlanarManipulator/PlanarManipulator.cpp
-            PlanarManipulator/PolyWorld.cpp
-        )
-        target_link_libraries(demo_MultiLevelPlanarManipulator PRIVATE yaml-cpp::yaml-cpp)
+        #add_ompl_demo(demo_MultiLevelPlanarManipulator
+            #multilevel/MultiLevelPlanarManipulatorDemo.cpp
+         #   PlanarManipulator/PlanarManipulator.cpp
+         #   PlanarManipulator/PolyWorld.cpp
+        #)
+        #target_link_libraries(demo_MultiLevelPlanarManipulator PRIVATE yaml-cpp::yaml-cpp)
     endif()
 
     if (OMPL_EXTENSION_TRIANGLE)
