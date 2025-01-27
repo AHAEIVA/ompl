@@ -331,6 +331,42 @@ namespace ompl
 
             /** \brief Instance of random number generator */
             RNG rng_;
+            
+
+            // tether_simulation helper functions
+            /** \brief Add intermediate states between two states */    
+            void addIntermediateStatesToPath(std::vector<base::State *> &states, const base::SpaceInformationPtr &si, double delta);
+             
+            void calculateCumulativeCosts(const std::vector<base::State *> &states,
+                                                    std::vector<base::Cost> &costs, 
+                                        const base::OptimizationObjectivePtr &obj);
+           void addIntermediateStatesBetweenNodes(const base::SpaceInformationPtr &si, 
+                                                    std::vector<base::State *> &states, 
+                                                    std::size_t i, 
+                                                    std::size_t j, double delta);
+
+            bool isPathSegmentOptimal(const base::OptimizationObjectivePtr &obj, 
+                                            const base::Cost &alongPath, 
+                                             const base::Cost &shortcutCost, 
+                                            const base::Cost &equivalenceCost);
+
+           void updateCumulativeCosts(const base::SpaceInformationPtr &si,
+                                      const base::OptimizationObjectivePtr &obj,
+                                       std::vector<base::State *> &states,
+                                         std::vector<base::Cost> &costs,
+                                          std::size_t startIdx);
+
+
+         void freeAndEraseStates(const base::SpaceInformationPtr &si, 
+                                   std::vector<base::State *> &states, 
+                                   std::size_t i, std::size_t j, 
+                                   bool freeStates_);
+
+         bool checkLineOfSight(const base::SpaceInformationPtr &si,
+                                const std::vector<base::State *> &contactPoints,
+                                 const std::vector<base::State *> &states);
+
+
         };
     }  // namespace geometric
 }  // namespace ompl
