@@ -121,6 +121,7 @@ void ompl::geometric::PathSimplifier::smoothBSpline(PathGeometric &path, unsigne
     si->freeState(temp2);
 }
 
+/**/
 bool ompl::geometric::PathSimplifier::reduceVertices(PathGeometric &path, unsigned int maxSteps,
                                                      unsigned int maxEmptySteps, double rangeRatio)
 {
@@ -211,6 +212,34 @@ void ompl::geometric::PathSimplifier::addIntermediateStatesToPath(std::vector<ba
 }
 
 
+/*
+void ompl::geometric::PathSimplifier::addIntermediateStatesBetweenNodes(const base::SpaceInformationPtr &si, std::vector<base::State *> &states, std::size_t i, std::size_t j, double delta)
+{
+    double dist = si->distance(states[i], states[j]);
+    if (dist > delta)
+    {
+        std::size_t numIntermediateStates = static_cast<std::size_t>(floor(dist / delta));
+        double t = 1.0 / (numIntermediateStates + 1);
+        std::size_t insertPos = i + 1;
+        for (std::size_t k = 0; k < numIntermediateStates; ++k)
+        {
+            base::State *newState = si->allocState();
+            si->getStateSpace()->interpolate(states[i], states[j], t * (k + 1), newState);
+            if (si->isValid(newState))
+            {
+                states.insert(states.begin() + insertPos, newState);
+                ++insertPos;
+            }
+            else
+            {
+                si->freeState(newState);
+            }
+        }
+    }
+}
+*/
+
+
 
 void ompl::geometric::PathSimplifier::addIntermediateStatesBetweenNodes(const base::SpaceInformationPtr &si, std::vector<base::State *> &states, std::size_t i, std::size_t j, double delta)
 {
@@ -227,7 +256,6 @@ void ompl::geometric::PathSimplifier::addIntermediateStatesBetweenNodes(const ba
         }
     }
 }
-
 
 
 
@@ -273,15 +301,61 @@ void ompl::geometric::PathSimplifier::freeAndEraseStates(const base::SpaceInform
 
 bool ompl::geometric::PathSimplifier::checkLineOfSight(const base::SpaceInformationPtr &si, const std::vector<base::State *> &contactPoints, const std::vector<base::State *> &states)
 {
-    if (!contactPoints.empty() && contactPoints.size() > 1)
+    if (!contactPoints.empty() )
     {
-        if (!si->checkMotion(contactPoints.back(), states[states.size() - 1]) && si->isValid(contactPoints.back())) // Check if there is an obstacle between the last contact point on the list and the ROV.
-        {
-            std::cout << "Motion check failed between contactPoints.back() and the last state, or contact point is not in free space." << std::endl;
+       // if (!si->checkMotion(contactPoints.back(), states[states.size() - 1]) && si->isValid(contactPoints.back())) // Check if there is an obstacle between the last contact point on the list and the ROV.
+       double threshold = 0.000001; // Define your threshold distance
+      
+
+      // std::cout << "Doing motion check " << std::endl;
+
+      //if (!si->checkMotion(contactPoints[contactPoints.size() - 2], states[states.size() - 1]) ) 
+        if (!si->checkMotion(contactPoints.back(), states[states.size() - 1]) ) 
+      {
+            //std::cout << "Motion check failed between contactPoints.back() and the last state, or contact point is not in free space." << std::endl;
             return false;
         }
     }
     return true;
+}
+
+
+
+
+
+bool ompl::geometric::PathSimplifier::checkLineOfSight(const base::SpaceInformationPtr &si, const base::State *state, const std::vector<base::State *> &states)
+{
+    if (!states.empty())
+    {
+        const base::State *lastState = states.back();
+        if (!si->checkMotion(lastState, state)&&si->isValid(state))
+        {
+            std::cout << "Motion check failed between the last state and state[j]." << std::endl;
+            return false;
+        }
+    }
+    return true;
+}
+
+
+void ompl::geometric::PathSimplifier::popState(base::State *&state1, const base::State *state2, double delta)
+{
+    const base::SpaceInformationPtr &si = si_;
+    double dist = si->distance(state1, state2);
+    base::State *newState = si->allocState();
+    if (dist > delta)
+    {
+        si->getStateSpace()->interpolate(state1, state2, delta / dist, newState);
+    }
+    else
+    {
+        si->copyState(newState, state2);
+    }
+    if(si->isValid(newState))
+    {
+       //si->freeState(state1);
+    state1 = newState;
+    }
 }
 
 
@@ -294,11 +368,13 @@ bool ompl::geometric::PathSimplifier::ropeRRTtether(PathGeometric &path, std::ve
     //Check if path has at least 3 nodes, otherwise exit early.
     if (path.getStateCount() < 3)
         return false;
-     
+     int num_contact= 0;
+     contactPoints.clear();
     //Definitions:
+    //std::vector<base::State *> contactPoints; // Create a new contactPoints vector
 
     bool result = false; //initialize result to false {no changes made to the path} 
-    contactPoints.clear(); //reset contact points
+    //contactPoints.clear(); //reset contact points
     ompl::base::Cost equivalenceCost(equivalenceTolerance * delta);  // Define the cost threshold for determining if a path segment is already optimal
     const base::SpaceInformationPtr &si = path.getSpaceInformation(); // Get space information, including free space, occpuied space
     std::vector<base::State *> &states = path.getStates();            // get the x,y,z coordinates of the path nodes
@@ -325,7 +401,7 @@ bool ompl::geometric::PathSimplifier::ropeRRTtether(PathGeometric &path, std::ve
         for (std::size_t j = i + 1; j < states.size(); ++j)
     {
             
-            std::cout << "Checking shortcut between i = " << i << " and j = " << j << std::endl;
+           // std::cout << "Checking shortcut between i = " << i << " and j = " << j << std::endl;
 
             // Check if the shortcut is valid
             if (si->checkMotion(states[i], states[j]))
@@ -341,7 +417,7 @@ bool ompl::geometric::PathSimplifier::ropeRRTtether(PathGeometric &path, std::ve
                 if (obj_->isCostBetterThan(shortcutCost, alongPath))
                 {   
 
-                    std::cout << "Shortcut is better between i = " << i << " and j = " << j << std::endl;
+                    //std::cout << "Shortcut is better between i = " << i << " and j = " << j << std::endl;
 
                     // The shortcut is better than the current path, so remove the nodes in between
                     if (freeStates_)
@@ -350,6 +426,7 @@ bool ompl::geometric::PathSimplifier::ropeRRTtether(PathGeometric &path, std::ve
                     }
  
                     // Add intermediate states between i and j
+                    //if (state)
                     addIntermediateStatesBetweenNodes(si, states, i, j, delta);
 
                     // Update the cumulative costs
@@ -360,20 +437,75 @@ bool ompl::geometric::PathSimplifier::ropeRRTtether(PathGeometric &path, std::ve
                 }
             }
         else
-            {   
+            {     
+                
+                num_contact++;
+                //popState(states[j], states.back(), 0.1);
                 contactPoints.push_back(states[j]);
+                
+                if (contactPoints.size() > 100000)
+                {
+                    contactPoints.clear();
+                }
                 // Debug print to check the size of contactPoints
-                std::cout << "Added contact point. Number of contact points: " << contactPoints.size() << std::endl;
+                //std::cout << "Added contact point. Number of contact points: " << contactPoints.size() << std::endl;
+                if (j < 20)
+                popState(states[j], states.back(), 0.05);
+
+                if (i== 1){
+              //      popState(states[j], states.back(), 0.2);
+                base::Cost shortcutCost = obj_->motionCost(states[i], states[j]);
+                base::Cost alongPath = obj_->subtractCosts(costs[j], costs[i]);
+                 
+                if (obj_->isCostBetterThan(shortcutCost, alongPath))
+                {   
+
+                    //std::cout << "Shortcut is better between i = " << i << " and j = " << j << std::endl;
+
+                    // The shortcut is better than the current path, so remove the nodes in between
+                    if (freeStates_)
+                    {
+                        freeAndEraseStates(si, states, i, j, freeStates_);
+                    }
+ 
+                    // Add intermediate states between i and j
+                    //if (state)
+                    addIntermediateStatesBetweenNodes(si, states, i, j, delta);
+
+                    // Update the cumulative costs
+                    updateCumulativeCosts(si, obj_, states, costs, i + 1);
+
+                    result = true;
+                   
+                }
+            }
+
+
+
 
                 if (!checkLineOfSight(si, contactPoints, states))
+               // if (!checkLineOfSight(si,states[j], states) )
                 {
+                    //int a=1;
+                    //
+                    //std::cout<<"num_contact: " << num_contact;
                     break;
                 }
+                
+                //else{SSS
+
+
+               // }
+            
             }
         }
     }
+    
+    
+
     return result;
 }
+
 
 
 

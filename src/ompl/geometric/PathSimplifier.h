@@ -367,6 +367,16 @@ namespace ompl
                                  const std::vector<base::State *> &states);
 
 
+        bool checkLineOfSight(const base::SpaceInformationPtr &si,
+        const base::State *state,
+        const std::vector<base::State *> &states);
+
+
+        void popState(base::State *&state1, const base::State *state2, double delta);
+
+
+
+
         };
     }  // namespace geometric
 }  // namespace ompl
