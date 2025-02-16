@@ -353,7 +353,7 @@ void ompl::geometric::PathSimplifier::popState(base::State *&state1, const base:
     }
     if(si->isValid(newState))
     {
-       //si->freeState(state1);
+    //si->freeState(state1);
     state1 = newState;
     }
 }
@@ -449,9 +449,9 @@ bool ompl::geometric::PathSimplifier::ropeRRTtether(PathGeometric &path, std::ve
                 }
                 // Debug print to check the size of contactPoints
                 //std::cout << "Added contact point. Number of contact points: " << contactPoints.size() << std::endl;
-                if (j < 20)
+                if (j > states.size() - 20){
                 popState(states[j], states.back(), 0.05);
-
+                }
                 if (i== 1){
               //      popState(states[j], states.back(), 0.2);
                 base::Cost shortcutCost = obj_->motionCost(states[i], states[j]);
