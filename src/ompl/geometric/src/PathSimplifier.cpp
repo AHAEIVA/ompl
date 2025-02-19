@@ -483,7 +483,7 @@ bool ompl::geometric::PathSimplifier::ropeRRTtether(PathGeometric &path, std::ve
 
 
 
-                if (!checkLineOfSight(si, contactPoints, states))
+                if (!checkLineOfSight(si, contactPoints, states) )
                // if (!checkLineOfSight(si,states[j], states) )
                 {
                     //int a=1;
